@@ -2,36 +2,55 @@ import React from 'react';
 import Child from './Child';
 
 class Parent extends React.Component {
-  constructor() { // 최초에 실행됨. 렌더가 일어나기 전 state를 쓴다. 
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      // isToggle: false // 직접 객체를 만들었다. 
-      index: 0
+      people: [{
+        name: 'gomugom',
+        phone: '010-1111-2222',
+        show: false
+      }, {
+        name: 'iu',
+        phone: '010-2222-3333',
+        show: false
+      }, {
+        name: 'akmu',
+        phone: '010-1133-3245',
+        show: false
+      }]
     };
   }
-  handleClick(i) { // 렌더 후 : setState를 쓰라. 
-    this.setState({ // state를 바꿀땐 setState를 쓰라. 
-      index: i
+  handleClick(i) {
+    console.log(this.state);
+    const newPeople = this.state.people;
+    newPeople[i].show = !newPeople[i].show;
+    this.setState({
+      people: newPeople
     });
   }
   render() {
-    // const { isToggle } = this.state;
-    const { index } = this.state;
+    const people = this.state.people;
     return (
-      <div>
-        <Child 
-          isSelected={index === 0}
-          setIndex={()=>this.handleClick(0)}
-          name="gomugom" gender="male" />
-        <Child 
-          isSelected={index === 1}
-          setIndex={()=>this.handleClick(1)}
-          name="iu" gender="female" />
-        <Child 
-          isSelected={index === 2}
-          setIndex={()=>this.handleClick(2)}
-          name="hoho" />
-      </div>
+      <ul>
+        <Child
+          name={ people[0].name }
+          phone={ people[0].phone }
+          show={ people[0].show }
+          handleClick={this.handleClick.bind(this, 0)}
+        />
+        <Child
+          name={ people[1].name }
+          phone={ people[1].phone }
+          show={ people[1].show }
+          handleClick={this.handleClick.bind(this, 1)}
+        />
+        <Child
+          name={ people[2].name }
+          phone={ people[2].phone }
+          show={ people[2].show }
+          handleClick={this.handleClick.bind(this, 2)}
+        />
+      </ul>
     );
   }
 }
