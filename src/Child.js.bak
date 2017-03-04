@@ -1,0 +1,30 @@
+//----- Child.js -----
+import React from 'react';
+
+class Child extends React.Component {
+	static defaultProps = { //정규문법이 아니다(언젠가 될 문법이다) 바벨을 사용하다면 사용해도 된다
+		name : '이름없음',
+		gender : '성별없음'
+	}
+	render(){
+		const { name, gender, setIndex, isSelected } = this.props;
+		return (
+			<div
+			
+				style = {{ color : isSelected ?  '#f00' : '#00f'}}
+				onClick={setIndex}>
+				<h2>{name}</h2>
+				<strong>{gender}</strong>
+			</div>
+		)
+	}
+
+}
+
+/* es6만 사용한다면 바벨없이 
+Child.defaultProps = {
+	name : '이름없음',
+	gender : '성별없음'
+};
+*/
+export default Child;
