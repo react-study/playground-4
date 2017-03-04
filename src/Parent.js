@@ -3,82 +3,61 @@ import React from "react";
 import Child from "./Child";
 
 class Parent extends React.Component {
-    // 최초에 호출됨
-    constructor() {
-        super(); // 부모 클래스 호출
-        // 최초에 설정하는 것이기에 setSate로 하지 않아도 된다
+    constructor(props) {
+        super(props);
         this.state = {
-            index: 0
+            people: [{
+                name: 'gomugom',
+                phone: '010-1111-2222',
+                show: false
+            }, {
+                name: 'iu',
+                phone: '010-2222-3333',
+                show: false
+            }, {
+                name: 'akmu',
+                phone: '010-1133-3245',
+                show: false
+            }]
         };
     }
 
     handleClick(i) {
-        // 아래처럼 setSate로 state로 바꾸어야 render가 작동 한다.
+        console.log(this.state);
+        const newPeople = this.state.people;
+        newPeople[i].show = !newPeople[i].show;
         this.setState({
-            index: i
+            people: newPeople
         });
     }
 
     render() {
-        const {index} = this.state;
+        const people = this.state.people;
         return (
-            <div>
+            <ul>
                 <Child
-                    isSelected={index === 0}
-                    setIndex={() => this.handleClick(0)}
-                    name="gomugom"
-                    gender="male"/>
-
+                    name={ people[0].name }
+                    phone={ people[0].phone }
+                    show={ people[0].show }
+                    handleClick={this.handleClick.bind(this, 0)}
+                />
                 <Child
-                    isSelected={index === 1}
-                    setIndex={() => this.handleClick(1)}
-                    name="iu"
-                    gender="female"/>
-
+                    name={ people[1].name }
+                    phone={ people[1].phone }
+                    show={ people[1].show }
+                    handleClick={this.handleClick.bind(this, 1)}
+                />
                 <Child
-                    isSelected={index === 2}
-                    setIndex={() => this.handleClick(2)}
-                    name="jn"/>
-            </div>
-        )
+                    name={ people[2].name }
+                    phone={ people[2].phone }
+                    show={ people[2].show }
+                    handleClick={this.handleClick.bind(this, 2)}
+                />
+            </ul>
+        );
     }
 }
 
+
 export default Parent;
 
-
-// v1
-
-//class Parent extends React.Component {
-//    // 최초에 호출됨
-//    constructor() {
-//        super(); // 부모 클래스 호출
-//        // 최초에 설정하는 것이기에 setSate로 하지 않아도 된다
-//        this.state = {
-//            isToggle: false
-//        };
-//    }
-//
-//    handleClick() {
-//        // 아래처럼 setSate로 state로 바꾸어야 render가 작동 한다.
-//        this.setState({
-//            isToggle: !this.state.isToggle
-//        });
-//    }
-//
-//    render() {
-//        const {isToggle} = this.state;
-//        return (
-//            <div
-//                style={{color: isToggle ? "#f00" : "#00f"}}
-//                onClick={() => this.handleClick()}
-//            >
-//                <Child name="gomugom" gender="male"/>
-//                <Child name="iu" gender="female"/>
-//                <Child name="iu"/>
-//            </div>
-//        )
-//    }
-//}
-
-//export default Parent;
