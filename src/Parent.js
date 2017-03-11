@@ -30,26 +30,18 @@ class Parent extends React.Component {
   }
   render() {
     const people = this.state.people;
+    const children = people.map(({name,phone,show}, i) => (
+      <Child
+        key = {`Child#${i}`}
+        name={name}
+        phone = {phone}
+        show = {show}
+        handleClick= {this.handleClick.bind(this, i)}
+      />
+    ));
     return (
       <ul>
-        <Child
-          name={ people[0].name }
-          phone={ people[0].phone }
-          show={ people[0].show }
-          handleClick={this.handleClick.bind(this, 0)}
-        />
-        <Child
-          name={ people[1].name }
-          phone={ people[1].phone }
-          show={ people[1].show }
-          handleClick={this.handleClick.bind(this, 1)}
-        />
-        <Child
-          name={ people[2].name }
-          phone={ people[2].phone }
-          show={ people[2].show }
-          handleClick={this.handleClick.bind(this, 2)}
-        />
+        {children}
       </ul>
     );
   }
