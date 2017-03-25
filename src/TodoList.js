@@ -15,15 +15,15 @@ class TodoList extends React.Component {
 
         const todolist = todos.map(({text, isDone, id}) => (
             <Todo
-                key        = {`todo#${id}`}
-                text       = {text}
-                isDone     = {isDone}
-                isEditing  = {editingId === id}
-                deleteTodo = {()=> deleteTodo(id)}
-                editTodo   = {()=> editTodo(id)}
-                cancelEdit = {()=> cancelEdit()}
-                saveTodo   = {text => saveTodo(id, text)}
-                toggleTodo = {()=> toggleTodo(id)}
+                key          = {`todo#${id}`}
+                text         = {text}
+                isDone       = {isDone}
+                isEditing    = {editingId === id}
+                deleteTodo   = {()=> deleteTodo(id)}
+                editTodo     = {()=> editTodo(id)}
+                cancelEdit   = {()=> cancelEdit()}
+                saveTodo     = {text => saveTodo(id, text)}
+                toggleTodo   = {()=> toggleTodo(id)}
             />
         ));
         return (
