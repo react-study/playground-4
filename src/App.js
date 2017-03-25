@@ -9,9 +9,21 @@ class App extends React.Component {
         super();
         this.state = {
             todos: [
-                {text: '배고파', id: 1000},
-                {text: '졸려', id: 1001},
-                {text: '날씨좋다', id: 1002}
+                {
+                  text: '배고파',
+                  isDone: false,
+                  id: 1000
+                },
+                {
+                  text: '졸려',
+                  isDone: true,
+                  id: 1001
+                },
+                {
+                  text: '날씨좋다',
+                  isDone: false,
+                  id: 1002
+                }
             ],
             editingId: null
         };
@@ -22,6 +34,7 @@ class App extends React.Component {
                 ...this.state.todos,
                 {
                     text,
+                    isDone: false,
                     id: Date.now()
                 }
             ]
@@ -56,6 +69,31 @@ class App extends React.Component {
             editingId: null
         });
     }
+    toggleTodo(id) {
+        const newTodos = [ ...this.state.todos ];
+        const toggleIndex = newTodos.findIndex(v => v.id === id);
+        newTodos[toggleIndex] = Object.assign({}, newTodos[toggleIndex], {
+            isDone: !newTodos[toggleIndex].isDone
+        });
+        this.setState({
+            todos: newTodos
+        });
+    }
+    toggleAll() {
+        const newToggleAll = !this.state.todos.every(v => v.isDone);
+        const newTodos = this.state.todos.map(todo => Object.assign({}, todo, {
+            isDone: newToggleAll
+        }));
+        this.setState({
+            todos: newTodos
+        });
+    }
+    deleteCompleted() {
+        const newTodos = this.state.todos.filter(todo => !todo.isDone);
+        this.setState({
+            todos: newTodos
+        });
+    }
 
     render() {
         const {
@@ -67,6 +105,7 @@ class App extends React.Component {
             <div className="todo-app">
                 <Header
                     addTodo={text => this.addTodo(text)}
+                    toggleAll={() => this.toggleAll()}
                 />
                 <TodoList
                     todos      = {todos}
@@ -75,8 +114,11 @@ class App extends React.Component {
                     editTodo   = {id => this.editTodo(id)}
                     cancelEdit = {() => this.cancelEdit()}
                     saveTodo   = {(id, newText) => this.saveTodo(id, newText)}
+                    toggleTodo = {id => this.toggleTodo(id)}
                 />
-                <Footer />
+                <Footer
+                    deleteCompleted = {() => this.deleteCompleted()}
+                />
             </div>
         );
     }
