@@ -1,4 +1,4 @@
-//----- main.js -----
+//----- TodoList.js -----
 import React from 'react';
 import Todo from './Todo';
 
@@ -7,13 +7,24 @@ class TodoList extends React.Component {
   render(){
     const {
       todos,
-      deleteTodo
+      editingId,
+      deleteTodo,
+      editTodo,
+      cancleEdit,
+      saveTodo,
+      toggleTodo
     } = this.props;
-    const todoList = todos.map(({text, id}) => (
+    const todoList = todos.map(({text, isDone, id}) => (
       <Todo
-        key={`todo#${id}`}
-        text={text}
-        deleteTodo={() => deleteTodo(id)}
+        key        = {`todo#${id}`}
+        text       = {text}
+        isDone     = {isDone}
+        isEditing  = {editingId === id}
+        deleteTodo = {() => deleteTodo(id)}
+        editTodo   = {() => editTodo(id)}
+        cancleEdit = {() => cancleEdit()}
+        saveTodo   = {text => saveTodo(id, text)}
+        toggleTodo = {() => toggleTodo(id)}
       />
     ));
     return(
@@ -22,7 +33,6 @@ class TodoList extends React.Component {
           {todoList}
         </ul>
       </div>
-
     );
   }
 }

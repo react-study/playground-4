@@ -1,4 +1,4 @@
-//----- main.js -----
+//----- Footer.js -----
 import React from 'react';
 
 class Footer extends React.Component {
@@ -21,7 +21,10 @@ class Footer extends React.Component {
             <a>Completed</a>
           </li>
         </ul>
-        <button className="todo-delete-completed">
+        <button
+          className="todo-delete-completed"
+          onClick = {this.props.deleteCompleted}
+        >
           Clear Completed
         </button>
       </div>

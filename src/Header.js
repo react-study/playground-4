@@ -1,4 +1,4 @@
-//----- main.js -----
+//----- Header.js -----
 import React from 'react';
 
 class Header extends React.Component {
@@ -18,7 +18,9 @@ class Header extends React.Component {
           placeholder="what needs to be done?"
           onKeyDown={e => this.handleKeyDown(e)}
         />
-        <div className="toggle-all"/>
+        <div className="toggle-all"
+          onClick = {this.props.toggleAll}
+        />
       </header>
 
     );
