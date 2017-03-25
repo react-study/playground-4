@@ -26,7 +26,8 @@ class App extends React.Component {
           id : 1002
         }
       ],
-      editingId : null
+      editingId : null,
+      filterName : 'All'
     };
   }
   addTodo(text) {
@@ -44,7 +45,7 @@ class App extends React.Component {
   }
   deleteTodo(id) {
     const newTodos = [ ...this.state.todos];
-    const deleteIndex = newTodos.findIndex(v=> v.id ===id );
+    const deleteIndex = newTodos.findIndex( v => v.id === id );
     newTodos.splice(deleteIndex, 1);
     this.setState({
       todos: newTodos
@@ -98,11 +99,28 @@ class App extends React.Component {
     });
   }
 
+  selectFilter(f) {
+    this.setState({
+      filterName : f
+    });
+  }
+
   render() {
     const {
       todos,
-      editingId
+      editingId,
+      filterName
     } = this.state;
+
+    const filteredTodos = todos.filter( v => {
+      if(
+        filterName === 'All' ||
+        (filterName === 'Active' && !v.isDone) ||
+        (filterName === 'Completed' && v.isDone)
+      ) return true;
+    });
+    const activeLength = todos.filter( v => !v.isDone).length;
+
     return (
       <div className="todo-app">
         <Header
@@ -110,7 +128,7 @@ class App extends React.Component {
           toggleAll = {() => this.toggleAll()}
         />
         <TodoList
-          todos       = { todos }
+          todos       = { filteredTodos }
           editingId   = { editingId }
           editTodo    = { id => this.editTodo(id) }
           deleteTodo  = { id => this.deleteTodo(id) }
@@ -119,6 +137,9 @@ class App extends React.Component {
           toggleTodo  = { id => this.toggleTodo(id) }
         />
         <Footer
+          filterName      = { filterName }
+          activeLength    = { activeLength }
+          selectFilter    = { f => this.selectFilter(f)}
           deleteCompleted = { () => this.deleteCompleted() }
         />
       </div>
