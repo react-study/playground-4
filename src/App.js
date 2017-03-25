@@ -1,54 +1,48 @@
 import React from 'react';
+import axios from 'axios';
 
 import Header from './Header';
 import TodoList from './TodoList';
 import Footer from './Footer';
 
+const ax = axios.create({
+  baseURL : 'http://localhost:2403/todos/',
+  timeout : 1000
+});
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      todos : [
-        {
-          text : '배고파',
-          isDone : false,
-          id : 1000
-        },
-        {
-          text : '배고파2',
-          isDone : true,
-          id : 1001
-        },
-        {
-          text : '배고파3',
-          isDone : false,
-          id : 1002
-        }
-      ],
+      todos : [],
       editingId : null,
       filterName : 'All'
     };
   }
-  addTodo(text) {
-    this.setState({
-      todos: [
-        ...this.state.todos,
-        {
-          text,
-          isDone : false,
-          id: Date.now()
-        }
-      ]
-
+  componentWillMount() {
+    ax.get('/').then( res => {
+      this.setState({
+        todos : res.data
+      });
     });
   }
+
+  addTodo(text) {
+    ax.post('/', { text }).then( res =>{
+      this.setState({
+        todos: [ ...this.state.todos, res.data ]
+      });
+    })
+  }
+
   deleteTodo(id) {
-    const newTodos = [ ...this.state.todos];
-    const deleteIndex = newTodos.findIndex( v => v.id === id );
-    newTodos.splice(deleteIndex, 1);
-    this.setState({
-      todos: newTodos
+    ax.delete(`/${id}`).then(()=> {
+      const newTodos = [ ...this.state.todos];
+      const deleteIndex = newTodos.findIndex( v => v.id === id );
+      newTodos.splice(deleteIndex, 1);
+      this.setState({
+        todos: newTodos
+      });
     });
   }
 
