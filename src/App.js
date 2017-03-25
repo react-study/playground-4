@@ -11,7 +11,8 @@ class App extends React.Component {
                 {text: " 배고파 ", id: 1000},
                 {text: " 졸려 ", id: 1001},
                 {text: " 날씨좋다 ", id: 1002},
-            ]
+            ],
+            editingId: null
         };
     }
 
@@ -37,15 +38,47 @@ class App extends React.Component {
         });
     }
 
+    editTodo(id) {
+        this.setState({
+            editingId: id
+        })
+    }
+
+    cancelEdit() {
+        this.setState({
+            editingId: null
+        })
+    }
+
+    saveTodo(id, newText) {
+        const newTodos = [...this.state.todos];
+        const editIndex = newTodos.findIndex(v => v, id === id);
+        newTodos[editIndex] = Object.assign({}, newTodos[editIndex], {
+            text: newText
+        });
+        this.setState({
+            todos: newTodos,
+            editingId: null
+        });
+    }
+
     render() {
+        const {
+            todos,
+            editingId,
+        }=this.state;
         return (
             <div className="todo-app">
                 <Header
                     addTodo={text => this.addTodo(text)}
                 />
                 <TodoList
-                    todos={this.state.todos}
+                    todos={todos}
+                    editingId={editingId}
                     deleteTodo={id => this.deleteTodo(id)}
+                    editTodo={id => this.editTodo(id)}
+                    cancelEdit={() => this.cancelEdit()}
+                    saveTodo={(id, newText) => this.saveTodo(id, newText)}
                 />
                 <Footer />
             </div>
