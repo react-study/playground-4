@@ -25,7 +25,8 @@ class App extends React.Component {
           id: 1002
         }
       ],
-      editingId: null
+      editingId: null,
+      filterName: 'All'
     }
   }
 
@@ -102,12 +103,30 @@ class App extends React.Component {
       todos: newTodos
     })
   }
-
+  selectFilter(f) {
+    this.setState({
+      filterName: f
+    })
+  }
   render() {
     const {
       todos,
-      editingId
+      editingId,
+      filterName
     } = this.state;
+
+    const filteredTodos = todos.filter(v => {
+      if(
+        filterName === 'All' ||
+        (filterName === 'Active' && !v.isDone) ||
+        (filterName === 'Completed' && v.isDone)
+      ) return true
+    })
+
+    // filterName === 'All' ? todos : (
+    //   filterName === 'Active' ? todos.filter(v => !v.isDone) : todos.filter(v => v.isDone)
+    // )
+    const activeLength = todos.filter(v => !v.isDone).length;
     return (
       <div className="todo-app">
         <Header
@@ -115,7 +134,7 @@ class App extends React.Component {
           toggleAll={() => this.toggleAll()}
         />
         <TodoList
-          todos={todos}
+          todos={filteredTodos}
           editingId={editingId}
           deleteTodo={id => this.deleteTodo(id)}
           editTodo={id => this.editTodo(id)}
@@ -124,7 +143,10 @@ class App extends React.Component {
           toggleTodo={id => this.toggleTodo(id)}
         />
         <Footer
+          filterName = {filterName}
+          activeLength = {activeLength}
           deleteCompleted={() => this.deleteCompleted()}
+          selectFilter={f => this.selectFilter(f)}
         />
       </div>
     );
