@@ -1,12 +1,13 @@
-import React from 'react';
+import React from "react";
 
 class Header extends React.Component {
     handleKeyDown(e) {
         const text = e.target.value;
-        if(!text || e.keyCode !== 13) return;
+        if (!text || e.keyCode !== 13) return;
         this.props.addTodo(text);
         e.target.value = '';
     }
+
     render() {
         return (
             <header>
@@ -17,7 +18,10 @@ class Header extends React.Component {
                     placeholder="What needs to be done?"
                     onKeyDown={e => this.handleKeyDown(e)}
                 />
-                <div className="toggle-all" />
+                <div
+                    className="toggle-all"
+                    onClick={this.props.toggleAll}
+                />
             </header>
         );
     }

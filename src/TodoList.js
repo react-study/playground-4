@@ -1,5 +1,5 @@
-import React from 'react';
-import Todo from './Todo';
+import React from "react";
+import Todo from "./Todo";
 
 class TodoList extends React.Component {
     render() {
@@ -9,18 +9,20 @@ class TodoList extends React.Component {
             deleteTodo,
             editTodo,
             cancelEdit,
-            saveTodo
+            saveTodo,
+            toggleTodo
         } = this.props;
 
         const todolist = todos.map(({text, id}) => (
             <Todo
-                key        = {`todo#${id}`}
-                text       = {text}
-                isEditing  = {editingId === id}
-                deleteTodo = {()=> deleteTodo(id)}
-                editTodo   = {()=> editTodo(id)}
-                cancelEdit = {()=> cancelEdit()}
-                saveTodo   = {text => saveTodo(id, text)}
+                key={`todo#${id}`}
+                text={text}
+                isEditing={editingId === id}
+                deleteTodo={() => deleteTodo(id)}
+                editTodo={() => editTodo(id)}
+                cancelEdit={() => cancelEdit()}
+                saveTodo={text => saveTodo(id, text)}
+                toggleTodo={() => toggleTodo(id)}
             />
         ));
         return (
