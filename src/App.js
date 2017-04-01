@@ -30,7 +30,7 @@ class App extends React.Component {
     addTodo(text) {
         ax.post('/', { text }).then(res => {
             this.setState({
-                todos: [ ...this.state.todos, res.data ]
+                todos: [ res.data, ...this.state.todos ]
             });
         });
     }
@@ -57,37 +57,54 @@ class App extends React.Component {
     saveTodo(id, newText) {
         const newTodos = [ ...this.state.todos ];
         const editIndex = newTodos.findIndex(v => v.id === id);
-        newTodos[editIndex] = Object.assign({}, newTodos[editIndex], {
+
+        ax.put(`/${id}`, {
             text: newText
-        });
-        this.setState({
-            todos: newTodos,
-            editingId: null
+        }).then(res => {
+            newTodos[editIndex] = res.data;
+            // newTodos.splice(editIndex, 1, res.data);
+            this.setState({
+                todos: newTodos,
+                editingId: null
+            })
         });
     }
     toggleTodo(id) {
         const newTodos = [ ...this.state.todos ];
         const toggleIndex = newTodos.findIndex(v => v.id === id);
-        newTodos[toggleIndex] = Object.assign({}, newTodos[toggleIndex], {
+
+        ax.put(`/${id}`, {
             isDone: !newTodos[toggleIndex].isDone
-        });
-        this.setState({
-            todos: newTodos
+        }).then(res => {
+            newTodos[toggleIndex] = res.data;
+            this.setState({
+                todos: newTodos
+            });
         });
     }
     toggleAll() {
         const newToggleAll = !this.state.todos.every(v => v.isDone);
-        const newTodos = this.state.todos.map(todo => Object.assign({}, todo, {
-            isDone: newToggleAll
-        }));
-        this.setState({
-            todos: newTodos
+        const axArray = this.state.todos.map(v =>
+            ax.put(`/${v.id}`, {
+                isDone: newToggleAll
+            })
+        );
+        axios.all(axArray).then(res => {
+            this.setState({
+                todos: res.map(r => r.data)
+            });
         });
     }
     deleteCompleted() {
         const newTodos = this.state.todos.filter(todo => !todo.isDone);
-        this.setState({
-            todos: newTodos
+        const axArray = this.state.todos
+            .filter(todo => todo.isDone)
+            .map(v => ax.delete(`/${v.id}`));
+
+        axios.all(axArray).then(() => {
+            this.setState({
+                todos: newTodos
+            });
         });
     }
     selectFilter(f) {
