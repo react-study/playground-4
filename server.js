@@ -22,6 +22,6 @@ const serverOptions = {
 
 const server = new webpackDevServer(compiler, serverOptions);
 
-server.listen(8080, () => {
-    console.log('now listening http://localhost:8080');
+server.listen(7070, () => {
+    console.log('now listening http://localhost:7070');
 });
