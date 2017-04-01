@@ -1,6 +1,7 @@
 //----- App.js -----
 import React from 'react';
 import axios from 'axios';
+import update from 'immutability-helper';
 import Header from './Header';
 import TodoList from './TodoList';
 import Footer from './Footer';
@@ -30,19 +31,23 @@ class App extends React.Component {
   addTodo(text){
     ax.post('/', {text}).then(res =>{
       this.setState({//변경시 setState 사용
-        todos:[...this.state.todos, res.data]
+        //[res.data, ...this.state.todos]
+        todos: update(this.state.todos, {
+          $push: [res.data]
+        })
       });
     });
   }
 
   deleteTodo(id){
     ax.delete(`/${id}`).then(() =>{
-      const newTodos = [...this.state.todos];
-      const deleteIndex = newTodos.findIndex(v => v.id === id);
-      newTodos.splice(deleteIndex, 1);
-      this.setState({
-        todos: newTodos
-      })
+      this.setState(
+        update(this.state, {
+          $splice:[
+            [this.state.todos.findIndex(v => v.id === id)]
+          ]
+        })
+      )
     });
   }
 
@@ -59,30 +64,73 @@ class App extends React.Component {
   }
 
   saveTodo(id, newText){
-    const newTodos = [...this.state.todos];
-    const editIndex = newTodos.findIndex(v => v.id === id);
-    newTodos[editIndex] = Object.assign({}, newTodos[editIndex], {
+    const prevState = this.state;
+    const editIndex = prevState.todos.findIndex(v => v.id === id);
+
+    this.setState(
+      update(prevState, {
+        todos: {
+          [editIndex]: {
+            text: {
+              $set: newText
+            }
+          }
+        },
+        editingId: {
+          $set: null
+        }
+      })
+    );
+
+    ax.put(`/${id}`, {
       text: newText
-    });
-    this.setState({
-      todos: newTodos,
-      editingId : null
+    }).catch(res => {
+      this.setState(prevState);
+      /*
+        this.setState({
+          todos: prevState.todos,
+          editingId: null
+        });
+        */
     })
   }
 
   toggleTodo(id){
-    const newTodos = [...this.state.todos];
-    const toggleIndex = newTodos.findIndex(v => v.id === id);
-    newTodos[toggleIndex] = Object.assign({}, newTodos[toggleIndex], {
-      isDone: !newTodos[toggleIndex].isDone
-    });
-    this.setState({
-      todos: newTodos
+    const toggleIndex = this.state.todos.findIndex(v => v.id === id);
+    ax.put(`/${id}`, {
+      isDone: !this.state.todos[toggleIndex].isDone
+    }).then(res => {
+      //newTodos[toggleIndex] = res.data;
+      this.setState(
+        update(this.state,{
+          todos: {
+            [toggleIndex]: {
+              $set: res.data
+            }
+          }
+        })
+      );
     })
   }
 
   toggleAll(){
     const newToggleAll = !this.state.todos.every(v => v.isDone);
+    const axArray = this.state.todos.map(v =>
+      ax.put(`/${v.id}`, {
+        isDone: newToggleAll
+      })
+    )
+
+    axios.all(axArray).then(res => {
+      this.setState(
+        update(this.state, {
+          todos : {
+            $apply: () => res.map(v => v.data)
+          }
+        })
+      )
+    })
+
     const newTodos = this.state.todos.map(todo => Object.assign({}, todo, {
         isDone: newToggleAll
     }));
@@ -92,9 +140,18 @@ class App extends React.Component {
   }
 
   deleteCompleted(){
-    const newTodos = this.state.todos.filter(todo => !todo.isDone);
-    this.setState({
-      todos: newTodos
+    //const newTodos = this.state.todos.filter(todo => !todo.isDone);
+    const axArray = this.state.todos
+                  .filter(todo => todo.isDone)
+                  .map(v => ax.delete(`/${v.id}`));
+    axios.all(axArray).then(() => {
+      this.setState(
+        update(this.state, {
+          todos:{
+            $apply: todos => todos.filter(v => !v.isDone)
+          }
+        })
+      );
     });
   }
 
