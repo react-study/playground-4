@@ -4,6 +4,7 @@ import Header from "./Header";
 import TodoList from "./TodoList";
 import Footer from "./Footer";
 
+// axios 초기 설정
 const ax = axios.create({
     baseURL: "http://localhost:2403/todos",
     timeout: 1000
@@ -20,16 +21,19 @@ class App extends React.Component {
         };
     }
 
+    // 최초에 값 가져오기
     componentWillMount() {
+        // get 전체리스트 가져오기
         ax.get("/").then(res => {
-            console.log(res);
             this.setState({
                 todos: res.data
             })
         })
     }
 
+    // 내용추가
     addTodo(text) {
+        // post는 추가
         ax.post('/', {text}).then(res => {
             this.setState({
                 todos: [...this.state.todos, res.data]
@@ -38,6 +42,7 @@ class App extends React.Component {
     }
 
     deleteTodo(id) {
+        // 아이템 삭제
         ax.delete(`/${id}`).then(() => {
             const newTodos = [...this.state.todos];
             const deleteIndex = newTodos.findIndex(v => v.id === id);
@@ -63,42 +68,63 @@ class App extends React.Component {
     saveTodo(id, newText) {
         const newTodos = [...this.state.todos];
         const editIndex = newTodos.findIndex(v => v.id === id);
-        newTodos[editIndex] = Object.assign({}, newTodos[editIndex], {
+
+        ax.put(`/${id}`, {
             text: newText
-        });
-        this.setState({
-            todos: newTodos,
-            editingId: null
+        }).then(res => {
+            newTodos[editIndex] = res.data;
+            // newTodos.splice(editIndex, 1, res.data);
+            this.setState({
+                todos: newTodos,
+                editingId: null
+            });
         });
     }
 
     toggleTodo(id) {
         const newTodos = [...this.state.todos];
         const toggleIndex = newTodos.findIndex(v => v.id === id);
-        newTodos[toggleIndex] = Object.assign({}, newTodos[toggleIndex], {
-            isDone: !newTodos[toggleIndex].isDone
-        });
-        this.setState({
-            todos: newTodos
-        })
-    }
 
+        ax.put(`/${id}`, {
+            isDone: !newTodos[toggleIndex].isDone
+        }).then(res => {
+            newTodos[toggleIndex] = res.data;
+            this.setState({
+                todos: newTodos
+            });
+        });
+    }
 
     toggleAll() {
         const newToggleAll = !this.state.todos.every(v => v.isDone);
-        const newTodos = this.state.todos.map(todo => Object.assign({}, todo, {
-            isDone: newToggleAll
-        }));
-        this.setState({
-            todos: newTodos
+        const axArray = this.state.todos.map(v =>
+            ax.put(`/${v.id}`, {
+                isDone: newToggleAll
+            })
+        );
+
+        // 모두 response가 왔을 때 then을 실행할 수 있음
+        axios.all(axArray).then(res => {
+            this.setState({
+                todos: res.map(v => v.data)
+            });
+            //문제가 있을 경우
+        }).catch(err => {
+            console.error(err);
         });
     }
 
     deleteCompleted() {
         const newTodos = this.state.todos.filter(todo => !todo.isDone);
-        this.setState({
-            todos: newTodos
-        })
+        const axArray = this.state.todos
+            .filter(todo => todo.isDone)
+            .map(v => ax.delete(`/${v.id}}`));
+
+        axios.all(axArray).then(() => {
+            this.setState({
+                todos: newTodos
+            });
+        });
     }
 
     selectFilter(f) {
