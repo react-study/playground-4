@@ -24,9 +24,9 @@ class App extends React.Component {
           id: 1002
         }
       ], 
-      editingId: null
+      editingId: null,
+      filterName: 'All'
     };
-    // this.addTodo = this.addTodo.bind(this);
   }
   addTodo(text) {
     this.setState({ // state를 바꾸며 렌더도 해라. 
@@ -103,11 +103,34 @@ class App extends React.Component {
     });
   }
 
+  selectFilter(f) {
+    this.setState({
+      filterName: f
+    });
+  }
+
   render(){
     const {
       todos,
-      editingId
+      editingId,
+      filterName
     } = this.state;
+
+    // 1. if 3개 방법
+    const filteredTodos = todos.filter(v=> {
+      if(
+        filterName  === 'All' ||
+        (filterName === 'Active' && !v.isDone) ||
+        (filterName === 'Completed' && v.isDone)
+      ) return true;
+    });
+
+    // 2. 삼항식 방법
+    // const filteredTodos = filterName === 'All' ? todos : (
+    //     filterName === 'Active' ? todos.filter( v => !v.isDone) : todos.filter( v => v.isDone)
+    //   )
+
+    const activeLength = todos.filter(v => !v.isDone).length;
 
     return (
       <div className="todo-app">
@@ -116,7 +139,7 @@ class App extends React.Component {
           toggleAll={()=> this.toggleAll()}
         />
         <TodoList
-          todos={this.state.todos}
+          todos={filteredTodos}
           editingId = {editingId}
           deleteTodo={id => this.deleteTodo(id)}
           editTodo={id => this.editTodo(id)}
@@ -125,6 +148,9 @@ class App extends React.Component {
           toggleTodo={id => this.toggleTodo(id)}
         />
         <Footer 
+          filterName = {filterName}
+          activeLength = {activeLength}
+          selectFilter = {f => this.selectFilter(f)}
           deleteCompleted = {() => this.deleteCompleted()}
         />
       </div>
