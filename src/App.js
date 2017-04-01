@@ -76,25 +76,28 @@ class App extends React.Component {
     }
 
     saveTodo(id, newText) {
-
-        const newTodos = [...this.state.todos];
-        const editIndex = newTodos.findIndex(v => v.id === id);
+        const prevState = this.state;
+        const editIndex = prevState.todos.findIndex(v => v.id === id);
+        this.setState(
+            update(prevState, {
+                todos: {
+                    [editIndex]: {
+                        text: {
+                            $set: newText
+                        }
+                    }
+                },
+                editingId: {
+                    $set: null
+                }
+            })
+        );
 
         ax.put(`/${id}`, {
             text: newText
-        }).then(res => {
-            newTodos[editIndex] = res.data;
-            // newTodos.splice(editIndex, 1, res.data);
-            this.setState({
-                // todos: newTodos,
-                todos: update(newTodos, {
-                    [editIndex]: {
-                        $set: res.data
-                    }
-                }),
-                editingId: null
-            });
-        });
+        }).catch(err => {
+            this.setState(prevState);
+        })
     }
 
     toggleTodo(id) {
