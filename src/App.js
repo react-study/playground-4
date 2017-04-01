@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import update from "immutability-helper";
 import Header from "./Header";
 import TodoList from "./TodoList";
 import Footer from "./Footer";
@@ -36,7 +37,11 @@ class App extends React.Component {
         // post는 추가
         ax.post('/', {text}).then(res => {
             this.setState({
-                todos: [...this.state.todos, res.data]
+                todos: update(this.state.todos, {
+                    $push: [res.data]
+                })
+                // 위 방법과 같은 것임
+                // todos: [...this.state.todos, res.data]
             });
         });
     }
@@ -46,11 +51,16 @@ class App extends React.Component {
         ax.delete(`/${id}`).then(() => {
             const newTodos = [...this.state.todos];
             const deleteIndex = newTodos.findIndex(v => v.id === id);
-            newTodos.splice(deleteIndex, 1);
+            // newTodos.splice(deleteIndex, 1);
+
             this.setState({
-                todos: newTodos
+                todos: update(newTodos, {
+                    $splice: [
+                        [deleteIndex, 1]
+                    ]
+                })
             });
-        })
+        });
     }
 
     editTodo(id) {
@@ -66,6 +76,7 @@ class App extends React.Component {
     }
 
     saveTodo(id, newText) {
+
         const newTodos = [...this.state.todos];
         const editIndex = newTodos.findIndex(v => v.id === id);
 
@@ -75,23 +86,41 @@ class App extends React.Component {
             newTodos[editIndex] = res.data;
             // newTodos.splice(editIndex, 1, res.data);
             this.setState({
-                todos: newTodos,
+                // todos: newTodos,
+                todos: update(newTodos, {
+                    [editIndex]: {
+                        $set: res.data
+                    }
+                }),
                 editingId: null
             });
         });
     }
 
     toggleTodo(id) {
-        const newTodos = [...this.state.todos];
-        const toggleIndex = newTodos.findIndex(v => v.id === id);
+        // const newTodos = [...this.state.todos];
+        // const toggleIndex = newTodos.findIndex(v => v.id === id);
 
         ax.put(`/${id}`, {
             isDone: !newTodos[toggleIndex].isDone
         }).then(res => {
-            newTodos[toggleIndex] = res.data;
-            this.setState({
-                todos: newTodos
-            });
+            // newTodos[toggleIndex] = res.data;
+            this.setState(
+                update(this.state, {
+                    todos: {
+                        [this.state.todos.findIndex(v => v.id === id)]: {
+                            $set: res.data
+                        }
+                    }
+                }),
+                // todos: newTodos
+                //     todos : update(newTodos, {
+                //     [toggleIndex]: {
+                //         $set: res.data
+                //     }
+                // })
+            )
+            ;
         });
     }
 
@@ -105,24 +134,29 @@ class App extends React.Component {
 
         // 모두 response가 왔을 때 then을 실행할 수 있음
         axios.all(axArray).then(res => {
-            this.setState({
-                todos: res.map(v => v.data)
-            });
-            //문제가 있을 경우
-        }).catch(err => {
-            console.error(err);
-        });
+            this.setState(
+                updata(this.state, {
+                    todos: {
+                        $apply: () => res.map(v = v.data)
+                    }
+                })
+                //문제가 있을 경우
+            )
+        })
     }
 
     deleteCompleted() {
-        const newTodos = this.state.todos.filter(todo => !todo.isDone);
+        // const newTodos = this.state.todos.filter(todo => !todo.isDone);
         const axArray = this.state.todos
             .filter(todo => todo.isDone)
-            .map(v => ax.delete(`/${v.id}}`));
+            .map(v => ax.delete(`/${v.id}`));
 
         axios.all(axArray).then(() => {
             this.setState({
-                todos: newTodos
+                // todos: newTodos
+                todos: update(this.state.todos, {
+                    $apply: todos => todos.filter(v => !v.isDone)
+                })
             });
         });
     }
@@ -177,4 +211,6 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export
+default
+App;
