@@ -62,21 +62,26 @@ class App extends React.Component {
         });
     }
     saveTodo(id, newText) {
+        const prevState = this.state;
+        const editIndex = prevState.todos.findIndex(v => v.id === id);
+        this.setState(
+            update(prevState, {
+                todos: {
+                    [editIndex]: {
+                        text: {
+                            $set: newText
+                        }
+                    }
+                },
+                editingId: {
+                    $set: null
+                }
+            })
+        );
         ax.put(`/${id}`, {
             text: newText
-        }).then(res => {
-            this.setState(
-                update(this.state, {
-                    todos: {
-                        [this.state.todos.findIndex(v => v.id === id)]: {
-                            $set: res.data
-                        }
-                    },
-                    editingId: {
-                        $set: null
-                    }
-                })
-            })
+        }).catch(err => {
+            this.setState(prevState);
         });
     }
     toggleTodo(id) {
