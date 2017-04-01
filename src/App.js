@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import update from 'immutability-helper';
 
 import Header from './Header';
 import TodoList from './TodoList';
@@ -30,18 +31,24 @@ class App extends React.Component {
     addTodo(text) {
         ax.post('/', { text }).then(res => {
             this.setState({
-                todos: [ res.data, ...this.state.todos ]
+                // todos: [ ...this.state.todos, res.data]
+                todos: update(this.state.todos, {
+                    $push: [ res.data ]
+                })
             });
         });
     }
     deleteTodo(id) {
         ax.delete(`/${id}`).then(() => {
-            const newTodos = [...this.state.todos];
-            const deleteIndex = newTodos.findIndex(v => v.id === id);
-            newTodos.splice(deleteIndex, 1);
-            this.setState({
-                todos: newTodos
-            });
+            this.setState(
+                update(this.state, {
+                    todos: {
+                        $splice: [
+                            [ this.state.todos.findIndex(v => v.id === id), 1 ]
+                        ]
+                    }
+                })
+            );
         });
     }
     editTodo(id) {
@@ -55,31 +62,37 @@ class App extends React.Component {
         });
     }
     saveTodo(id, newText) {
-        const newTodos = [ ...this.state.todos ];
-        const editIndex = newTodos.findIndex(v => v.id === id);
-
         ax.put(`/${id}`, {
             text: newText
         }).then(res => {
-            newTodos[editIndex] = res.data;
-            // newTodos.splice(editIndex, 1, res.data);
-            this.setState({
-                todos: newTodos,
-                editingId: null
+            this.setState(
+                update(this.state, {
+                    todos: {
+                        [this.state.todos.findIndex(v => v.id === id)]: {
+                            $set: res.data
+                        }
+                    },
+                    editingId: {
+                        $set: null
+                    }
+                })
             })
         });
     }
     toggleTodo(id) {
-        const newTodos = [ ...this.state.todos ];
-        const toggleIndex = newTodos.findIndex(v => v.id === id);
-
+        const toggleIndex = this.state.todos.findIndex(v => v.id === id);
         ax.put(`/${id}`, {
-            isDone: !newTodos[toggleIndex].isDone
+            isDone: !this.state.todos[toggleIndex].isDone
         }).then(res => {
-            newTodos[toggleIndex] = res.data;
-            this.setState({
-                todos: newTodos
-            });
+            this.setState(
+                update(this.state, {
+                    todos: {
+                        [toggleIndex]: {
+                            $set: res.data
+                        }
+                    }
+                })
+            );
         });
     }
     toggleAll() {
@@ -90,21 +103,28 @@ class App extends React.Component {
             })
         );
         axios.all(axArray).then(res => {
-            this.setState({
-                todos: res.map(r => r.data)
-            });
+            this.setState(
+                update(this.state, {
+                    todos: {
+                        $apply: () => res.map(v => v.data)
+                    }
+                })
+            );
         });
     }
     deleteCompleted() {
-        const newTodos = this.state.todos.filter(todo => !todo.isDone);
         const axArray = this.state.todos
             .filter(todo => todo.isDone)
             .map(v => ax.delete(`/${v.id}`));
 
         axios.all(axArray).then(() => {
-            this.setState({
-                todos: newTodos
-            });
+            this.setState(
+                update(this.state, {
+                    todos: {
+                        $apply: todos => todos.filter(v => !v.isDone)
+                    }
+                })
+            );
         });
     }
     selectFilter(f) {
