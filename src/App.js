@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import update from 'immutability-helper';
 
 import Header from './Header';
 import TodoList from './TodoList';
@@ -32,20 +33,24 @@ class App extends React.Component {
     addTodo(text) {
         ax.post('/', { text }).then(res => {
             this.setState({
-                todos: [
-                    ...this.state.todos,
-                    res.data
-                ]
+                // todos: [...this.state.todos, res.data]
+                todos: update(this.state.todos, {
+                    $push: [ res.data ]
+                })
             });
         });
     }
     deleteTodo(id) {
         ax.delete(`/${id}`).then(() => {
-            const newTodos = [...this.state.todos];
-            const deleteIndex = newTodos.findIndex(v => v.id === id);
-            newTodos.splice(deleteIndex, 1);
+            //const newTodos = [...this.state.todos];
+            //const deleteIndex = this.state.todos.findIndex(v => v.id === id);
+            //newTodos.splice(deleteIndex, 1);
             this.setState({
-                todos: newTodos
+                todos: update(newTodos, {
+                    $splice: [
+                        [ this.state.todos.findIndex(v => v.id === id), 1 ]
+                    ]
+                })
             });
         })
     }
@@ -60,17 +65,28 @@ class App extends React.Component {
         });
     }
     saveTodo(id, newText) {
-        const newTodos = [ ...this.state.todos ];
-        const editIndex = newTodos.findIndex(v => v.id === id);
-
+        //const newTodos = [ ...this.state.todos ];
+        //const editIndex = newTodos.findIndex(v => v.id === id);
+        const prevState = this.state;
+        const editIndex = prevState.todos.findIndex(v => e.id === id);
+        this.setState(
+            update(this.state, {
+                todos: {
+                    [editIndex] : {
+                        text: {
+                            $set : newText
+                        }
+                    }
+                },
+                editingId: {
+                    $set: null
+                }
+            })
+        );
         ax.put(`/${id}`,{
             text: newText
-        }).then(res => {
-           newTodos.splice(editIndex, 1, res.data);
-           this.setState({
-               todos : newTodos,
-               editingId : null
-           })
+        }).catch(err => {
+            this.setState(prevState);
         });
     }
     toggleTodo(id){
@@ -80,9 +96,13 @@ class App extends React.Component {
         ax.put(`/${id}`, {
             isDone : !newTodos[toggleIndex].isDone
         }).then(res => {
-            newTodos[toggleIndex] = res.data;
+            //newTodos[toggleIndex] = res.data;
             this.setState({
-                todos : newTodos
+                todos : update(newTodos, {
+                    [toggleIndex] : {
+                        $set : res.data
+                    }
+                })
             })
         })
     }
@@ -95,23 +115,29 @@ class App extends React.Component {
         );
 
         axios.all(axArray).then(res => {
-            this.setState({
-                todos:res.map(v => v.data)
-            })
+            this.setState(
+                update(this.state,{
+                    todos: {
+                        $apply : () => res.map(v => v.data)
+                    }
+                })
+            );
         }).catch(err => {
             console.log(err);
         });
     }
     deleteCompleted(){
-        const newTodos = this.state.todos.filter(todo => !todo.isDone);
+        //const newTodos = this.state.todos.filter(todo => !todo.isDone);
         const axArray = this.state.todos
             .filter(todo => todo.isDone)
             .map(v => ax.delete(`/${v.id}`));
 
         axios.all(axArray).then(() => {
             this.setState({
-                todos: newTodos
-            })
+                todos: update(this.state.todos, {
+                    $apply: todos => todos.filter(v => !v.isDone)
+                })
+            });
         });
     }
     selectFilter(f){
