@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import RouterMain from './routerExample/routerMain';
+//import RouterMain from './routerExample/routerMain';
+import App from './reduxExample/App'
 
 ReactDom.render(
-  <RouterMain />,
+  <App />,
   document.getElementById('root')
 )
