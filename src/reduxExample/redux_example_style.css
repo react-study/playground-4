@@ -1,0 +1,41 @@
+table, thead, tbody, tr, th, td {
+    margin:0;
+    padding:0;
+    border:0;
+    vertical-align:baseline;
+}
+.tb-account-book {padding-top:10px}
+.tb-account-book table {
+    background-color:#fff;
+    width:100%;
+    border-spacing:0;
+}
+.tb-account-book th, .tb-account-book td {
+    padding:0;
+    vertical-align:middle;
+    text-align:center;
+    border:0 none;
+    border-left:1px solid #d9d9d9;
+    color:#000;
+    font-size:12px;
+    font-family: 'dotum', sans-serif;
+}
+.tb-account-book thead{
+    background-color:#eee;
+}
+.tb-account-book thead th {
+    border-bottom:0 none;
+    border-color:#d9d9d9;
+}
+.tb-account-book th,
+.tb-account-book tbody td{
+    border-bottom:1px solid #d9d9d9;
+}
+.btn {
+    display:inline-block;
+    width:50px;
+    margin-left:5px;
+    border:1px solid #d9d9d9;
+    background-color:#fff;
+    font-size:12px;
+}
