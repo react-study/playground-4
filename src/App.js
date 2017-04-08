@@ -16,8 +16,7 @@ class App extends React.Component {
     super();
     this.state={
       todos:[],
-      editingId: null,
-      filterName: 'All'
+      editingId: null
     };
   }
   componentWillMount(){
@@ -39,15 +38,17 @@ class App extends React.Component {
     });
   }
 
-  deleteTodo(id){
-    ax.delete(`/${id}`).then(() =>{
-      this.setState(
-        update(this.state, {
-          $splice:[
-            [this.state.todos.findIndex(v => v.id === id)]
-          ]
-        })
-      )
+  deleteTodo(id) {
+    ax.delete(`/${id}`).then(() => {
+        this.setState(
+            update(this.state, {
+                todos: {
+                    $splice: [
+                        [ this.state.todos.findIndex(v => v.id === id), 1 ]
+                    ]
+                }
+            })
+        );
     });
   }
 
@@ -155,24 +156,25 @@ class App extends React.Component {
     });
   }
 
-  selectFilter(f){
-    this.setState({
-      filterName: f
-    });
-  }
-
   render(){
     const {
       todos,
-      editingId,
-      filterName
+      editingId
     } = this.state;
+
+    const {
+      match: {
+        params
+      }
+    } = this.props;
+
+    const filterName = params.filterName || '';
 
     const filteredTodos = todos.filter(v => {
       if(
-        filterName === 'All'||
-        (filterName === 'Active' && !v.isDone) ||
-        (filterName === 'Completed' && v.isDone)
+        !filterName ||
+        (filterName === 'active' && !v.isDone) ||
+        (filterName === 'completed' && v.isDone)
       ) return true;
     });
 
@@ -195,7 +197,6 @@ class App extends React.Component {
            />
           <Footer
             filterName = {filterName}
-            selectFilter = {f => this.selectFilter(f)}
             deleteCompleted = {() => this.deleteCompleted()}
             activeLength = {activeLength}
           />

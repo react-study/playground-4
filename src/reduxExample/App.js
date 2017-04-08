@@ -12,8 +12,8 @@ class App extends React.Component {
     }
 
     addBook(asset) {
-        const type     = asset.cashType;
-        const cash     = asset.cash;
+        const type    = asset.cashType;
+        const cash    = asset.cash;
         const newCash = {
             deposit:  type ? cash : 0,
             withdraw: type ? 0 : cash,

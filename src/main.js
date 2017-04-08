@@ -1,7 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './reduxExample/app';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch
+} from 'react-router-dom';
+
+import App from './App';
+
 ReactDOM.render(
-    <App />,
+    <Router>
+      <Switch>
+        <Route exact path="/" component={App} />
+        <Route path="/:filterName" component={App} />
+      </Switch>
+    </Router>,
     document.getElementById('root')
 );
