@@ -44,8 +44,8 @@ class App extends React.Component {
         return (
             <div>
                 <InputBox
-                    deposit={(input)=>this.deposit(input)}
-                    withdraw={(input)=>this.withdraw(input)}
+                    deposit={ money  => this.deposit(money) }
+                    withdraw={ money => this.withdraw(money) }
                 />
                 <AccountBook
                     accountList={this.state.accountList}

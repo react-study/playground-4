@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 class InputBox extends React.Component {
     handleClick(fn) {
         const money = this._input.value;
