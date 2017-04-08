@@ -17,8 +17,7 @@ class App extends React.Component {
         super();
         this.state = {
             todos: [],
-            editingId: null,
-            filterName: 'All'
+            editingId: null
         };
     }
     componentWillMount(){
@@ -140,24 +139,26 @@ class App extends React.Component {
             });
         });
     }
-    selectFilter(f){
-        this.setState({
-            filterName: f
-        });
-    }
 
     render() {
         const {
             todos,
-            editingId,
-            filterName
+            editingId
         } = this.state;
+
+        const {
+            match : {
+                params
+            }
+        } = this.props;
+
+        const filterName = params.filterName || '';
 
         const filteredTodos = todos.filter(v => {
             if(
-                filterName === 'All' ||
-                (filterName === 'Active' && !v.isDone) ||
-                (filterName === 'Completed' && v.isDone)
+                !filterName ||
+                (filterName === 'active' && !v.isDone) ||
+                (filterName === 'completed' && v.isDone)
             ) return true;
         });
         const activeLength = todos.filter(v => !v.isDone).length;
@@ -180,7 +181,6 @@ class App extends React.Component {
                 <Footer
                     filterName = {filterName}
                     activeLength = {activeLength}
-                    selectFilter = {f =>  this.selectFilter(f)}
                     deleteCompleted = {() => this.deleteCompleted()}
                 />
             </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import ClassNames from 'classnames';
 
 
@@ -8,10 +9,11 @@ class Footer extends React.Component {
         const {
             filterName,
             activeLength,
-            selectFilter,
             deleteCompleted
         } = this.props;
-        const filters = ['All','Active','Completed'];
+
+        const filters = ['','active','completed'];
+
         return (
             <div className="footer">
             <span className="todo-count">
@@ -23,12 +25,12 @@ class Footer extends React.Component {
                     {
                         filters.map(f => (
                             <li key={`filter_${f}`}>
-                                <a
+                                <Link
                                     className={ClassNames({
                                         selected: f === filterName
                                     })}
-                                    onClick={()=>selectFilter(f)}
-                                >{f}</a>
+                                    to={`/${f}`}
+                                >{f ? f.replace(/^\w/, v => v.toUpperCase()) : 'All'}</Link>
                             </li>
                         ))
                     }

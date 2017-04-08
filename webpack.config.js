@@ -2,7 +2,7 @@ const { resolve } = require('path');
 const webpack = require('webpack');
 
 const HOST  = 'localhost';
-const PORT  = 8080;
+const PORT  = 7070;
 const URL   = `http://${HOST}:${PORT}`;
 const _PATH = resolve(__dirname, 'src');
 
