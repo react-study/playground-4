@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './reduxExample/app';
+import ReduxMain from './reduxExample_/ReduxMain';
+
 ReactDOM.render(
-    <App />,
+    <ReduxMain/>,
     document.getElementById('root')
 );
