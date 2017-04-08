@@ -1,8 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import RouterMain from "./routerExample/routerMain";
+import {
+    BrowserRouter as Router,
+    Route,
+    Switch
+} from "react-router-dom";
+import App from "./App";
 
 ReactDOM.render(
-    <RouterMain/>,
+    <Router>
+        <Switch>
+            <Route exact path="/" component={App}/>
+            <Route path="/:filterName" component={App}/>
+        </Switch>
+    </Router>,
     document.getElementById('root')
 );

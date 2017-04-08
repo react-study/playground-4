@@ -18,7 +18,6 @@ class App extends React.Component {
         this.state = {
             todos: [],
             editingId: null,
-            filterName: 'All'
         };
     }
 
@@ -40,8 +39,6 @@ class App extends React.Component {
                 todos: update(this.state.todos, {
                     $push: [res.data]
                 })
-                // 위 방법과 같은 것임
-                // todos: [...this.state.todos, res.data]
             });
         });
     }
@@ -101,13 +98,13 @@ class App extends React.Component {
     }
 
     toggleTodo(id) {
-        // const newTodos = [...this.state.todos];
-        // const toggleIndex = newTodos.findIndex(v => v.id === id);
+        //findIndex는 Array.prototype.findIndex.
+        //v.id와 같은 id를 리턴
+        const toggleIndex = this.state.todos.findIndex(v => v.id === id);
 
         ax.put(`/${id}`, {
-            isDone: !newTodos[toggleIndex].isDone
+            isDone: !this.state.todos[toggleIndex].isDone
         }).then(res => {
-            // newTodos[toggleIndex] = res.data;
             this.setState(
                 update(this.state, {
                     todos: {
@@ -116,12 +113,6 @@ class App extends React.Component {
                         }
                     }
                 }),
-                // todos: newTodos
-                //     todos : update(newTodos, {
-                //     [toggleIndex]: {
-                //         $set: res.data
-                //     }
-                // })
             )
             ;
         });
@@ -164,24 +155,32 @@ class App extends React.Component {
         });
     }
 
-    selectFilter(f) {
-        this.setState({
-            filterName: f
-        });
-    }
+    /*    selectFilter(f) {
+     this.setState({
+     filterName: f
+     });
+     }*/
 
     render() {
 
         const {
             todos,
             editingId,
-            filterName
+            // filterName
         } = this.state;
 
+        const {
+            match : {
+                params
+            }
+        } = this.props;
+
+        const filterName = params.filterName || "";
+
         const filteredTodos = todos.filter(v => {
-            if (filterName === "All" ||
-                (filterName === "Active" && !v.isDone) ||
-                (filterName === "Completed" && v.isDone)
+            if (!filterName ||
+                (filterName === "active" && !v.isDone) ||
+                (filterName === "completed" && v.isDone)
             ) return true;
         });
 
@@ -206,7 +205,6 @@ class App extends React.Component {
                 <Footer
                     filterName={filterName}
                     activeLength={activeLength}
-                    selectFilter={f => this.selectFilter(f)}
                     deleteCompleted={() => this.deleteCompleted()}
                 />
             </div>
