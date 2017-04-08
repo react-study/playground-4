@@ -376,3 +376,13 @@ html .clear-completed:active {
 		bottom: 10px;
 	}
 }
+
+
+.cash{margin:100px 0 0 0;padding:10px;border:solid 1px #888;background:#fff}
+.cash .inputBox{margin:0 0 10px 0}
+.cash .inputBox button{margin:0 0 0 4px;padding:0;width:50px;height:20px;color:#fff;background:#555;cursor:pointer;vertical-align:middle}
+.cash .AccountBook table{width:100%;border-collapse: collapse;border-spacing:0}
+.cash .AccountBook table caption{position:absolute;left:0;top:-9999px}
+.cash .AccountBook table th{color:#fff;background:#333}
+.cash .AccountBook table td{border:solid 1px #ccc;text-align:center}
+.cash .AccountBook table tr:nth-child(even) td{background:#eee}
