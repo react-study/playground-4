@@ -5,8 +5,8 @@ const AccountBook = ({
 }) => {
     const tableData = accountList.map(({type, money, result}, i) => (
         <tr key={i}>
-            <td>{type === 'save' ? money : ''}</td>
-            <td>{type === 'withdraw' ? money : ''}</td>
+            <td>{type === 'SAVE_MONEY' ? money : ''}</td>
+            <td>{type === 'WITHDRAW_MONEY' ? money : ''}</td>
             <td>{result}</td>
         </tr>
     ));
