@@ -13,41 +13,31 @@ class App extends React.Component {
         }
     }
 
-    deposit(input){
-        const money = input.value;
-        if(!money) return;
-
+    deposit(money){
         const newItem = {
             act : 'deposit',
             money,
             sum : this.state.total + money*1,
             id : `deposit${new Date()}`
         };
-        const newList = [...this.state.accountList, newItem];
 
         this.setState({
-            accountList : newList,
+            accountList : [...this.state.accountList, newItem],
             total : newItem.sum
         });
-        input.value = '';
     }
-    withdraw(input){
-        const money = input.value;
-        if(!money) return;
-
+    withdraw(money){
         const newItem = {
             act : 'withdraw',
             money,
             sum : this.state.total - money*1,
             id : `withdraw${new Date()}`
         };
-        const newList = [...this.state.accountList, newItem];
 
         this.setState({
-            accountList : newList,
+            accountList : [...this.state.accountList, newItem],
             total : newItem.sum
         });
-        input.value = '';
     }
 
     render(){

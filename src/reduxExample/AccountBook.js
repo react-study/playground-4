@@ -6,16 +6,13 @@ class AccountBook extends React.Component {
             accountList
         } = this.props;
 
-        const tbRow = accountList.map( v => {
-                const {act, money, sum, id} = v;
-                return (
-                    <tr key={id}>
-                        <td>{act === 'deposit' ? money : ''}</td>
-                        <td>{act === 'withdraw' ? money : ''}</td>
-                        <td>{sum}</td>
-                    </tr>
-                )
-            }
+        const tbRow = accountList.map( ({act, money, sum, id}) => (
+                <tr key={id}>
+                    <td>{act === 'deposit' ? money : ''}</td>
+                    <td>{act === 'withdraw' ? money : ''}</td>
+                    <td>{sum}</td>
+                </tr>
+            )
         );
 
         return (

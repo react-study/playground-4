@@ -2,7 +2,12 @@ import React from 'react';
 
 
 class InputBox extends React.Component {
-
+    handleClick(fn) {
+        const money = this._input.value;
+        if (!money) return false;
+        fn(money);
+        this._input.value = '';
+    }
     render(){
         const {
             deposit,
@@ -19,12 +24,12 @@ class InputBox extends React.Component {
                 <button
                     type="button"
                     className="btn"
-                    onClick={() => deposit(this._input)}
+                    onClick={() => this.handleClick(deposit)}
                 >입금</button>
                 <button
                     type="button"
                     className="btn"
-                    onClick={() => withdraw(this._input)}
+                    onClick={() => this.handleClick(withdraw)}
                 >출금</button>
             </div>
         )
