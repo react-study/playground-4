@@ -1,33 +1,101 @@
 import React from 'react';
-import axios from 'axios';
-import update from 'immutability-helper';
+
+import { connect } from 'react-redux';
 
 import Header from './Header';
 import TodoList from './TodoList';
 import Footer from './Footer';
 
-const ax = axios.create({
-    baseURL: 'http://localhost:2403/todos',
-    timeout: 1000
-});
+import TodoAction from '../actions/TodoAction';
 
-class App extends React.Component {
-    constructor() {
-        super();
-        this.state = {
+const mapStateToProps = state => ({
+    todos: state.todos,
+    editingId: state.editingId
+});
+/**
+ * this.state = {
             todos: [],
             editingId: null
         };
-    }
-
+ * */
+const mapDispatchToProps = dispatch => ({
+    getTodos    : () => dispatch(TodoAction.getTodos()),
+    addTodo     : (text) => dispatch(TodoAction.addTodo(text)),
+    deleteTodo  : (id) => dispatch(TodoAction.deleteTodo(id)),
+    editTodo    : (id) => dispatch(TodoAction.editTodo(id)),
+    cancelEdit  : () => dispatch(TodoAction.cancelEdit()),
+    saveTodo    : (id, newText) => dispatch(TodoAction.saveTodo(id, newText)),
+    toggleTodo  : (id) => dispatch(TodoAction.toggleTodo(id)),
+    toggleAll   : () => dispatch(TodoAction.toggleAll()),
+    deleteCompleted : () => dispatch(TodoAction.deleteCompleted()),
+});
+class App extends React.Component {
     componentWillMount() {
-        ax.get('/').then(res => {
+        this.props.getTodos();
+        /*ax.get('/').then(res => {
             this.setState({
                 todos: res.data
             });
-        });
+        });*/
     }
-    addTodo(text) {
+
+    render() {
+        const {
+            todos,
+            editingId,
+            addTodo,
+            deleteTodo,
+            editTodo,
+            cancelEdit,
+            saveTodo,
+            toggleTodo,
+            toggleAll,
+            deleteCompleted,
+            match: {
+                params
+            }
+        } = this.props;
+
+        const filterName = params.filterName || '';
+
+        const filteredTodos = todos.filter(v => {
+            if (
+                !filterName ||
+                (filterName === 'active' && !v.isDone) ||
+                (filterName === 'completed' && v.isDone)
+            ) return true;
+        });
+        const activeLength = todos.filter(v => !v.isDone).length;
+
+        return (
+            <div className="todo-app">
+                <Header
+                    addTodo={addTodo}
+                    toggleAll={toggleAll}
+                />
+                <TodoList
+                    todos      = {filteredTodos}
+                    editingId  = {editingId}
+                    deleteTodo = {deleteTodo}
+                    editTodo   = {editTodo}
+                    cancelEdit = {cancelEdit}
+                    saveTodo   = {saveTodo}
+                    toggleTodo = {toggleTodo}
+                />
+                <Footer
+                    filterName      = {filterName}
+                    activeLength    = {activeLength}
+                    deleteCompleted = {deleteCompleted}
+                />
+            </div>
+        );
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+/**
+ addTodo(text) {
         ax.post('/', { text }).then(res => {
             this.setState({
                 // todos: [ ...this.state.todos, res.data]
@@ -37,7 +105,7 @@ class App extends React.Component {
             });
         });
     }
-    deleteTodo(id) {
+ deleteTodo(id) {
         ax.delete(`/${id}`).then(() => {
             this.setState(
                 update(this.state, {
@@ -50,17 +118,17 @@ class App extends React.Component {
             );
         });
     }
-    editTodo(id) {
+ editTodo(id) {
         this.setState({
             editingId: id
         });
     }
-    cancelEdit() {
+ cancelEdit() {
         this.setState({
             editingId: null
         });
     }
-    saveTodo(id, newText) {
+ saveTodo(id, newText) {
         const prevState = this.state;
         const editIndex = prevState.todos.findIndex(v => v.id === id);
         this.setState(
@@ -83,7 +151,7 @@ class App extends React.Component {
             this.setState(prevState);
         });
     }
-    toggleTodo(id) {
+ toggleTodo(id) {
         const toggleIndex = this.state.todos.findIndex(v => v.id === id);
         ax.put(`/${id}`, {
             isDone: !this.state.todos[toggleIndex].isDone
@@ -99,7 +167,7 @@ class App extends React.Component {
             );
         });
     }
-    toggleAll() {
+ toggleAll() {
         const newToggleAll = !this.state.todos.every(v => v.isDone);
         const axArray = this.state.todos.map(v =>
             ax.put(`/${v.id}`, {
@@ -116,7 +184,7 @@ class App extends React.Component {
             );
         });
     }
-    deleteCompleted() {
+ deleteCompleted() {
         const axArray = this.state.todos
             .filter(todo => todo.isDone)
             .map(v => ax.delete(`/${v.id}`));
@@ -131,53 +199,4 @@ class App extends React.Component {
             );
         });
     }
-
-    render() {
-        console.log('render');
-        const {
-            todos,
-            editingId
-        } = this.state;
-
-        const {
-            match: {
-                params
-            }
-        } = this.props;
-        const filterName = params.filterName || '';
-
-        const filteredTodos = todos.filter(v => {
-            if (
-                !filterName ||
-                (filterName === 'active' && !v.isDone) ||
-                (filterName === 'completed' && v.isDone)
-            ) return true;
-        });
-        const activeLength = todos.filter(v => !v.isDone).length;
-
-        return (
-            <div className="todo-app">
-                <Header
-                    addTodo={text => this.addTodo(text)}
-                    toggleAll={() => this.toggleAll()}
-                />
-                <TodoList
-                    todos      = {filteredTodos}
-                    editingId  = {editingId}
-                    deleteTodo = {id => this.deleteTodo(id)}
-                    editTodo   = {id => this.editTodo(id)}
-                    cancelEdit = {() => this.cancelEdit()}
-                    saveTodo   = {(id, newText) => this.saveTodo(id, newText)}
-                    toggleTodo = {id => this.toggleTodo(id)}
-                />
-                <Footer
-                    filterName      = {filterName}
-                    activeLength    = {activeLength}
-                    deleteCompleted = {() => this.deleteCompleted()}
-                />
-            </div>
-        );
-    }
-}
-
-export default App;
+*/
