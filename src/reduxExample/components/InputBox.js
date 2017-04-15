@@ -28,4 +28,5 @@ class InputBox extends Component {
         )
     }
 }
+
 export default InputBox;
