@@ -6,14 +6,19 @@ import {
     Switch
 } from 'react-router-dom';
 
-import App from './App';
+import { Provider } from 'react-redux';
+
+import App from './components/App';
+import store from './store';
 
 ReactDOM.render(
-    <Router>
-        <Switch>
-            <Route exact path="/" component={App} />
-            <Route path="/:filterName" component={App} />
-        </Switch>
-    </Router>,
+    <Provider store={store}>
+      <Router>
+          <Switch>
+              <Route exact path="/" component={App} />
+              <Route path="/:filterName" component={App} />
+          </Switch>
+      </Router>
+    </Provider>,
     document.getElementById('root')
 );

@@ -30,6 +30,9 @@
   },
   "dependencies": {
     "axios": "^0.15.3",
-    "classnames": "^2.2.5"
+    "classnames": "^2.2.5",
+    "react-redux": "^5.0.4",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.2.0"
   }
 }
