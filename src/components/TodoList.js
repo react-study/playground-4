@@ -23,7 +23,7 @@ class TodoList extends React.Component {
                 editTodo = {()=> editTodo(id)}
                 cancelEdit = {()=> cancelEdit()}
                 saveTodo = {text => saveTodo(id, text)}
-                toggleTodo = {()=> toggleTodo(id, !isDone)}
+                toggleTodo = {()=> toggleTodo(id)}
             />
         ));
         return (

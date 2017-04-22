@@ -6,6 +6,10 @@ const ax = axios.create({
 
 const TodoAction = {
     getTodos: () => dispatch => {
+        dispatch({
+            type: 'GET_TODOS_REQUEST'
+        });
+
         ax.get('/')
         .then(res => {
             dispatch({
@@ -15,20 +19,48 @@ const TodoAction = {
         });
     },
     addTodo: text => dispatch => {
+        const tempId = Date.now();
+        dispatch({
+            type: 'ADD_TODO_TEMPORAL',
+            newTodo: {
+                id: tempId,
+                text
+            }
+        });
+
         ax.post('/', { text })
         .then(res => {
             dispatch({
-                type: 'ADD_TODO',
+                type: 'ADD_TODO_SUCCESS',
+                tempId,
                 newTodo: res.data
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch({
+                type: 'ADD_TODO_FAILED',
+                tempId
             });
         });
     },
-    deleteTodo: id => dispatch => {
+    deleteTodo: id => (dispatch, getState) => {
+        const prevTodos = getState().todos;
+        dispatch({
+            type: 'DELETE_TODO',
+            id
+        });
         ax.delete(`/${id}`)
         .then(() => {
             dispatch({
-                type: 'DELETE_TODO',
-                id
+                type: 'DELETE_TODO_SUCCESS'
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch({
+                type: 'DELETE_TODO_FAILED',
+                todos: prevTodos
             });
         });
     },
@@ -39,44 +71,97 @@ const TodoAction = {
     cancelEdit: () => ({
         type: 'CANCEL_EDIT'
     }),
-    saveTodo: (id, newText) => dispatch => {
+    saveTodo: (id, newText) => (dispatch, getState) => {
+        const prevText = getState().todos.find(v => v.id === id).text;
+        dispatch({
+            type: 'SAVE_TODO_TEMPORAL',
+            id,
+            newText
+        });
         ax.put(`/${id}`, { text: newText })
-        .then(res => {
+        .then(() => {
             dispatch({
-                type: 'SAVE_TODO',
+                type: 'SAVE_TODO_SUCCESS'
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch({
+                type: 'SAVE_TODO_FAILED',
                 id,
-                editedTodo: res.data
+                newText: prevText
             });
         });
     },
-    toggleTodo: (id, newDone) => dispatch => {
-        ax.put(`/${id}`, { isDone: newDone })
-        .then(res => {
+    toggleTodo: id => (dispatch, getState) => {
+        const prevDone = getState().todos.find(v => v.id === id).isDone;
+        dispatch({
+            type: 'TOGGLE_TODO_TEMPORAL',
+            id,
+            isDone: !prevDone
+        });
+
+        ax.put(`/${id}`, { isDone: !prevDone })
+        .then(() => {
             dispatch({
-                type: 'TOGGLE_TODO',
+                type: 'TOGGLE_TODO_SUCCESS'
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch({
+                type: 'TOGGLE_TODO_FAILED',
                 id,
-                toggledTodo: res.data
+                isDone: prevDone
             });
         });
     },
-    toggleAll: todos => dispatch => {
+    toggleAll: () => (dispatch, getState) => {
+        const todos = getState().todos;
         const newToggleAll = !todos.every(v => v.isDone);
+        dispatch({
+            type: 'TOGGLE_ALL_TEMPORAL',
+            toggledTodos: todos.map(v => Object.assign({}, v, {
+                isDone: newToggleAll
+            }))
+        });
+
         const axArray = todos.map(todo =>
             ax.put(`/${todo.id}`, { isDone: newToggleAll })
         );
-        axios.all(axArray).then(res => {
+        axios.all(axArray)
+        .then(() => {
             dispatch({
-                type: 'TOGGLE_ALL',
-                toggledTodos: res.map(v => v.data)
+                type: 'TOGGLE_ALL_SUCCESS'
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch({
+                type: 'TOGGLE_ALL_FAILED',
+                toggledTodos: todos
             });
         });
     },
-    deleteCompleted: todos => dispatch => {
+    deleteCompleted: () => (dispatch, getState) => {
+        const todos = getState().todos;
+        dispatch({
+            type: 'DELETE_COMPLETED_TEMPORAL',
+            todos: todos.filter(v => !v.isDone)
+        });
+
         const axArray = todos.filter(todo => todo.isDone)
             .map(v => ax.delete(`/${v.id}`));
         axios.all(axArray).then(() => {
             dispatch({
-                type: 'DELETE_COMPLETED'
+                type: 'DELETE_COMPLETED_SUCCESS'
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch({
+                type: 'DELETE_COMPLETED_FAILED',
+                todos
             });
         });
     }
