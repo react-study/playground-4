@@ -6,10 +6,6 @@ const ax = axios.create({
 
 const TodoAction = {
     getTodos:() => dispatch => {
-        dispatch({
-            type: 'GET_TODOS_RESPONSE'
-        });
-
         ax.get('/')
         .then(res => {
             dispatch({
@@ -19,14 +15,24 @@ const TodoAction = {
         })
     },
 
-    addTodo: text => ({
-        type: 'ADD_TODO',
-        text
-    }),
-    deleteTodo: id => ({
-        type: 'DELETE_TODO',
-        id
-    }),
+    addTodo: text => dispatch => {
+        ax.post('/',{ text })
+        .then(res => {
+            dispatch({
+                type: 'ADD_TODO',
+                newTodo: res.data
+            });
+        });
+    },
+    deleteTodo: id => dispatch => {
+        ax.delete(`/${id}`)
+        .then(res => {
+            dispatch({
+                type: 'DELETE_TODO',
+                id
+            });
+        });
+    },
     editTodo: id => ({
         type: 'EDIT_TODO',
         id
@@ -34,21 +40,53 @@ const TodoAction = {
     cancelEdit: () => ({
         type: 'CANCEL_EDIT'
     }),
-    saveTodo: (id, newText) => ({
-        type: 'SAVE_TODO'
-        ,id
-        ,newText
-    }),
-    toggleTodo: id => ({
-        type: 'TOGGLE_TODO',
-        id
-    }),
-    toggleAll: () => ({
-        type: 'TOGGLE_ALL'
-    }),
-    deleteCompleted: () => ({
-        type: 'DELETE_COMPLETED'
-    })
+    saveTodo: (id, newText) => dispatch => {
+        ax.put(`/${id}`, { text: newText})
+            .then(res => {
+                dispatch({
+                    type: 'SAVE_TODO',
+                    id,
+                    editedTodo: res.data
+                })
+            })
+    },
+    toggleTodo: (id, newDone) => dispatch => {
+        ax.put(`/${id}`, { isDone: newDone})
+            .then(res => {
+                dispatch({
+                    type: 'TOGGLE_TODO',
+                    id,
+                    toggledTodo: res.data
+                })
+            })
+    },
+    toggleAll: todos => dispatch => {
+        const newToggleAll = !todos.every(v => v.isDone);
+        const axArray = todos.map(v =>
+            ax.put(`/${todo.id}`, {
+                isDone: newToggleAll
+            })
+        );
+        axios.all(axArray)
+            .then(res => {
+                dispatch({
+                    type: 'TOGGLE_ALL',
+                    toggledTodos: res.map(v => v.data)
+                });
+            })
+    },
+    deleteCompleted: todos => dispatch => {
+        const axArray = todos
+            .filter(todo => todo.isDone)
+            .map(v => ax.delete(`/${v.id}`));
+
+        axios.all(axArray).then(() => {
+            dispatch({
+                type: 'DELETE_COMPLETED'
+            });
+        });
+
+    }
 };
 
 export default TodoAction;
