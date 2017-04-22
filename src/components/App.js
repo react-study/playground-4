@@ -23,8 +23,8 @@ const mapDispatchToProps = dispatch => ({
   cancelEdit:      () => dispatch(TodoAction.cancelEdit()),
   saveTodo:        (id, newText) => dispatch(TodoAction.saveTodo(id, newText)),
   toggleTodo:      (id, newDone) => dispatch(TodoAction.toggleTodo(id, newDone)),
-  toggleAll:       todos => dispatch(TodoAction.toggleAll(todos)),
-  deleteCompleted: todos => dispatch(TodoAction.deleteCompleted(todos))
+  toggleAll:       () => dispatch(TodoAction.toggleAll()),
+  deleteCompleted: () => dispatch(TodoAction.deleteCompleted())
 });
 
 class App extends React.Component {
@@ -64,7 +64,7 @@ class App extends React.Component {
             <div className="todo-app">
                 <Header
                     addTodo={addTodo}
-                    toggleAll={() => toggleAll(todos)}
+                    toggleAll={() => toggleAll()}
                 />
                 <TodoList
                     todos      = {filteredTodos}
@@ -78,7 +78,7 @@ class App extends React.Component {
                 <Footer
                     filterName      = {filterName}
                     activeLength    = {activeLength}
-                    deleteCompleted = {() => deleteCompleted(todos)}
+                    deleteCompleted = {deleteCompleted}
                 />
             </div>
         );
