@@ -17,11 +17,7 @@ const TodoReducer = (state = initialState, action) => {
     case 'ADD_TODO': {
         return update(state, {
             todos: {
-                $push: [{
-                    id: Date.now(),
-                    text: action.text,
-                    isDone: false
-                }]
+                $push: [ action.newTodo ]
             }
         });
     }
@@ -52,33 +48,27 @@ const TodoReducer = (state = initialState, action) => {
         return update(state, {
             todos: {
                 [state.todos.findIndex(v => v.id === action.id)]: {
-                    text: {
-                        $set: action.newText
-                    }
+                    $set: action.editedTodo
                 }
+            },
+            editingId: {
+                $set: null
             }
         });
     }
     case 'TOGGLE_TODO': {
-        const toggleIndex = state.todos.findIndex(v => v.id === action.id);
         return update(state, {
             todos: {
-                [toggleIndex]: {
-                    isDone: {
-                        $set: !state.todos[toggleIndex].isDone
-                    }
+                [state.todos.findIndex(v => v.id === action.id)]: {
+                    $set: action.toggledTodo
                 }
             }
         });
     }
     case 'TOGGLE_ALL': {
-        const newToggleAll = !state.todos.every(v => v.isDone);
         return update(state, {
             todos: {
-                $apply: todos => todos.map(todo => {
-                    todo.isDone = newToggleAll;
-                    return todo;
-                })
+                $set: action.toggledTodos
             }
         });
     }

@@ -17,21 +17,14 @@ const mapDispatchToProps = dispatch => ({
     editTodo: id => dispatch(TodoAction.editTodo(id)),
     cancelEdit: () => dispatch(TodoAction.cancelEdit()),
     saveTodo: (id, newText) => dispatch(TodoAction.saveTodo(id, newText)),
-    toggleTodo: id => dispatch(TodoAction.toggleTodo(id)),
-    toggleAll: () => dispatch(TodoAction.toggleAll()),
-    deleteCompleted: () => dispatch(TodoAction.deleteCompleted())
+    toggleTodo: (id, newDone) => dispatch(TodoAction.toggleTodo(id, newDone)),
+    toggleAll: todos => dispatch(TodoAction.toggleAll(todos)),
+    deleteCompleted: todos => dispatch(TodoAction.deleteCompleted(todos))
 });
 
 class App extends React.Component {
     componentWillMount() {
         this.props.getTodos();
-        /*
-        ax.get('/').then(res => {
-            this.setState({
-                todos: res.data
-            });
-        });
-        */
     }
     render() {
         const {
@@ -67,7 +60,7 @@ class App extends React.Component {
             <div className="todo-app">
                 <Header
                     addTodo={addTodo}
-                    toggleAll={toggleAll}
+                    toggleAll={() => toggleAll(todos)}
                 />
                 <TodoList
                     todos = {filteredTodos}
@@ -81,7 +74,7 @@ class App extends React.Component {
                 <Footer
                     filterName = {filterName}
                     activeLength = {activeLength}
-                    deleteCompleted = {deleteCompleted}
+                    deleteCompleted = {() => deleteCompleted(todos)}
                 />
             </div>
         );
