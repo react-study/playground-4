@@ -25,9 +25,9 @@ const mapDispatchToProps = dispatch => ({
     editTodo    : (id) => dispatch(TodoAction.editTodo(id)),
     cancelEdit  : () => dispatch(TodoAction.cancelEdit()),
     saveTodo    : (id, newText) => dispatch(TodoAction.saveTodo(id, newText)),
-    toggleTodo  : (id, newDone) => dispatch(TodoAction.toggleTodo(id, newDone)),
-    toggleAll   : todos => dispatch(TodoAction.toggleAll(todos)),
-    deleteCompleted : todos => dispatch(TodoAction.deleteCompleted(todos)),
+    toggleTodo  : (id) => dispatch(TodoAction.toggleTodo(id)),
+    toggleAll   : () => dispatch(TodoAction.toggleAll(todos)),
+    deleteCompleted : () => dispatch(TodoAction.deleteCompleted(todos)),
 });
 class App extends React.Component {
     componentWillMount() {
@@ -93,6 +93,8 @@ class App extends React.Component {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
+//mapStateToProps => 상태에 대한 내용을 프롭스로
+//mapDispatchToProps => 동작에 대한 내용을 프롭스로
 
 /**
  addTodo(text) {
